@@ -1,0 +1,32 @@
+
+// Parse the JSON string stored in the variable 'transcript'
+const dialogueData = JSON.parse(last_utterance);
+
+// Initialize variables for storing the conversation history and HTML output
+let history = [];
+let htmlConvo = "";
+
+// Process each item from the parsed JSON to format messages and build the conversation
+dialogueData.forEach(trace => {
+  if (trace.type === 'text') {
+    // Agent (Assistant) message
+    history.push({ "Agent": trace.payload.payload.message });
+    htmlConvo += `<p><strong>Agent:</strong> ${trace.payload.payload.message}</p><br>`;
+  } else if (trace.type === 'request' && trace.payload.type === 'intent') {
+    // Customer (User) message
+    history.push({ "Customer": trace.payload.payload.query });
+    htmlConvo += `<p><strong>Customer:</strong> ${trace.payload.payload.query}</p><br>`;
+  }
+});
+
+// Escape single and double quotes in the entire HTML content
+htmlConvo = htmlConvo.replace(/"/g, '\\"');
+
+// Combine the results into a formatted transcript
+const formattedTranscript = history.map(item => {
+  const [speaker, message] = Object.entries(item)[0];
+  return `${speaker}: ${message}`;
+}).join('\n');
+
+// Save the formatted transcript to the 'transcript' variable
+transcript = formattedTranscript;
